@@ -206,9 +206,13 @@
                                     }),
                                 Redux.applyMiddleware(ReduxThunk.default, checker, logger));
 
+        const Context = React.createContext();
+
+
     </script>
 
     <script type="text/babel">
+
         function List(props) {
             return (
                 <ul>
@@ -291,29 +295,51 @@
             }
         }
 
+        class Provider extends React.Component {
+            render () {
+                return (
+                    <Context.Provider value={this.props.store}>
+                        {this.props.children}
+                    </Context.Provider>
+                )
+            }
+        }
+
+        class ConectedApp extends React.Component {
+            render () {
+                return (
+                    <Context.Consumer>
+                        { (state) => (
+                            <App store={store}></App>
+                        )}
+                    </Context.Consumer>
+                )
+            }
+        }
+
         class App extends React.Component {
             componentDidMount () {
-                const { store } = this.props;
-
                 store.dispatch(handleInitialData());
 
                 store.subscribe(() => this.forceUpdate());
             }
 
             render () {
-                const { store } = this.props;
                 const { todos, goals, loading } = store.getState();
                 return (
                     loading ? <h1>Loading</h1> :
                      <div>
-                        <Todos todos={todos} store={store}/>
-                        <Goals goals={goals} store={store}/>
+                        <Todos todos={todos} />
+                        <Goals goals={goals} />
                      </div>
                 )
             }
         }
         ReactDOM.render(
-            <App store={store}/>,
+            <Provider store={store}>
+                <App/>
+                <h1>test</h1>
+            </Provider>,
             document.getElementById('app')
         )
     </script>
